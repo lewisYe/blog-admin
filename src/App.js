@@ -5,7 +5,10 @@ import { Provider } from 'react-redux';
 import configureStore from './store/index';
 import { Switch } from 'react-router-dom';
 import routes from './routes/index';
-import { RouteWithSubRoutes } from './util'
+import { RouteWithSubRoutes, pleacherCenterComponent } from './util'
+import { Spin } from 'antd';
+
+const Loading = pleacherCenterComponent(Spin);
 
 const store = configureStore();
 class App extends React.Component {
@@ -13,7 +16,7 @@ class App extends React.Component {
     return (
       <Provider store={store}>
         <HashRouter>
-        <Suspense fallback={<div>loading</div>}>
+        <Suspense fallback={<Loading/>}>
           <Switch>
             {
               routes && routes.map((route, index) => (
