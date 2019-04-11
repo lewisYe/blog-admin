@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { message } from 'antd'
 
+const baseURL = 'http://localhost:3000'
+
 const instance = axios.create({
-  baseURL: '/',
+  baseURL: baseURL,
   timeout: 3000
 });
 
@@ -12,8 +14,8 @@ instance.interceptors.request.use(config => {
 });
 
 instance.interceptors.response.use(response => {
-  const { code, data } = response
-  if (code >= 200 && code < 500) {
+  const { status, data } = response
+  if (status >= 200 && status < 500) {
       return Promise.resolve(data)
   } else {
     message.destroy()

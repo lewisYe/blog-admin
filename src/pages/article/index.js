@@ -2,9 +2,10 @@ import React from 'react'
 import { Button, Input, Table, Divider } from 'antd';
 import { connect } from 'react-redux';
 import styles from './index.less'
+import { REQUEST_LIST } from '../../reducers/article'
 
 const Search = Input.Search;
-
+@connect(({ article }) => ({ article }))
 export default class Article extends React.Component {
   constructor(props) {
     super(props)
@@ -12,6 +13,14 @@ export default class Article extends React.Component {
       pageNo: 1,
       pageSize: 15
     }
+  }
+  componentDidMount(){
+    this.getList()
+  }
+  getList = () => {
+    this.props.dispatch({
+      type:REQUEST_LIST
+    })
   }
   renderColumns = () => {
     return (
@@ -56,6 +65,9 @@ export default class Article extends React.Component {
   onPageSizeChange = (current, size) => {
 
   }
+  onAdd = () => {
+    this.props.history.push('/article/new/0')
+  }
   render() {
     const data = [{
       name: '叶斌',
@@ -71,7 +83,7 @@ export default class Article extends React.Component {
             onSearch={value => console.log(value)}
             style={{ width: 200 }}
           />
-          <Button type="primary">新增文章</Button>
+          <Button type="primary" onClick={this.onAdd}>新增文章</Button>
         </div>
         <Table
           columns={this.renderColumns()}

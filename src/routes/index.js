@@ -4,6 +4,7 @@ const Account = lazy(() => import('../pages/account'));
 const Article = lazy(() => import('../pages/article'));
 const Tags = lazy(() => import('../pages/tags'));
 const Home = lazy(() => import('../pages/home'));
+const ArticleNewEdit = lazy(() => import('../pages/article/newEdit'));
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
         path: "/article",
         exact: true,
         component: Article
+      },
+      {
+        path: "/article/:type/:id",
+        exact: true,
+        component: ArticleNewEdit
       },
       {
         path: "/tags",
