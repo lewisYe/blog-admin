@@ -3,6 +3,7 @@ import { Button, Input, Table, Divider } from 'antd';
 import { connect } from 'react-redux';
 import styles from './index.less'
 import { REQUEST_LIST } from '../../reducers/article'
+import moment from 'moment'
 
 const Search = Input.Search;
 @connect(({ article }) => ({ article }))
@@ -14,12 +15,12 @@ export default class Article extends React.Component {
       pageSize: 15
     }
   }
-  componentDidMount(){
+  componentDidMount() {
     this.getList()
   }
   getList = () => {
     this.props.dispatch({
-      type:REQUEST_LIST
+      type: REQUEST_LIST
     })
   }
   renderColumns = () => {
@@ -36,6 +37,9 @@ export default class Article extends React.Component {
         title: '创建时间',
         dataIndex: 'createTime',
         key: 'createTime',
+        render: (val) => {
+          return moment(val).format('YYYY-MM-DD HH:mm:ss')
+        }
       },
       {
         title: '状态',
@@ -69,12 +73,7 @@ export default class Article extends React.Component {
     this.props.history.push('/article/new/0')
   }
   render() {
-    const data = [{
-      name: '叶斌',
-      tags: 18368493612,
-      createTime: '2019-4-10 11:30:31',
-      status: 0
-    }]
+    const { list, total } = this.props.article;
     return (
       <div>
         <div className={styles.search}>
@@ -87,12 +86,13 @@ export default class Article extends React.Component {
         </div>
         <Table
           columns={this.renderColumns()}
-          dataSource={data}
+          dataSource={list}
+          rowKey="_id"
           pagination={{
             showQuickJumper: true,
             showSizeChanger: true,
             showTotal: true,
-            total: 10,
+            total: total,
             showTotal: (total) => `总共${total}条`,
             current: this.state.pageNo,
             pageSize: this.state.pageSize,

@@ -8,7 +8,8 @@ function* getList() {
       const response = yield call(request.get, '/article/list', payload)
       yield put({
         type: RECEIVE_LIST,
-        data: 'request success'
+        data: response.data.list,
+        total:response.data.total,
       })
       resolve && resolve(response)
     } catch (error) {

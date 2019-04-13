@@ -4,6 +4,7 @@ export const RECEIVE_LIST = Symbol('RECEIVE_LIST')
 
 const article = (state = {
   list: [],
+  total:0
 }, action) => {
   switch (action.type) {
     case REQUEST_LIST:
@@ -14,7 +15,8 @@ const article = (state = {
     case RECEIVE_LIST:
       return {
         ...state,
-        list:action.list
+        list:action.data,
+        total:action.total
       }
       break;
     case CREATE_ARTICLE:
