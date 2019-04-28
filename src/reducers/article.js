@@ -1,6 +1,7 @@
 export const CREATE_ARTICLE = Symbol('CREATE_ARTICLE')
 export const REQUEST_LIST = Symbol('REQUEST_LIST')
 export const RECEIVE_LIST = Symbol('RECEIVE_LIST')
+export const DELETE_ARTICLE = Symbol('DELETE_ARTICLE')
 
 const article = (state = {
   list: [],

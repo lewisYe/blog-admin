@@ -1,5 +1,5 @@
 import { call, put, takeEvery, all, fork } from 'redux-saga/effects'
-import { CREATE_ARTICLE, REQUEST_LIST, RECEIVE_LIST } from '../reducers/article';
+import { CREATE_ARTICLE, REQUEST_LIST, RECEIVE_LIST,DELETE_ARTICLE } from '../reducers/article';
 import request from '../services/request'
 
 function* getList() {
@@ -18,20 +18,23 @@ function* getList() {
   })
 }
 
-function* create() {
+function* create(){
   yield takeEvery(CREATE_ARTICLE, function* ({ payload, resolve, reject }) {
     try {
       const response = yield call(request.post, '/article/create', payload)
-      yield put({
-        type: RECEIVE_TEST,
-        data: 'request success'
-      })
       resolve && resolve(response)
     } catch (error) {
-      yield put({
-        type: RECEIVE_TEST,
-        data: 'request fail'
-      })
+      reject && reject(error)
+    }
+  })
+}
+
+function* deleteArticle(){
+  yield takeEvery(DELETE_ARTICLE, function* ({ payload, resolve, reject }) {
+    try {
+      const response = yield call(request.post, '/article/delete', payload)
+      resolve && resolve(response)
+    } catch (error) {
       reject && reject(error)
     }
   })
@@ -40,6 +43,7 @@ function* create() {
 export default function* ArticleFolw() {
   yield all([
     fork(create),
-    fork(getList)
+    fork(getList),
+    fork(deleteArticle),
   ])
 }

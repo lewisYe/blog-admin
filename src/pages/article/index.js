@@ -1,9 +1,10 @@
 import React from 'react'
-import { Button, Input, Table, Divider } from 'antd';
+import { Button, Input, Table, Divider, Tag, message } from 'antd';
 import { connect } from 'react-redux';
 import styles from './index.less'
-import { REQUEST_LIST } from '../../reducers/article'
+import { REQUEST_LIST, DELETE_ARTICLE } from '../../reducers/article'
 import moment from 'moment'
+import { promiseBindDispatch } from '../../util'
 
 const Search = Input.Search;
 @connect(({ article }) => ({ article }))
@@ -14,13 +15,19 @@ export default class Article extends React.Component {
       pageNo: 1,
       pageSize: 15
     }
+    this.Dispatch = promiseBindDispatch(props.dispatch)
   }
   componentDidMount() {
-    this.getList()
+    this.getList(1,15)
   }
-  getList = () => {
+  getList = (pageNo,pageSize) => {
     this.props.dispatch({
-      type: REQUEST_LIST
+      type: REQUEST_LIST,
+      payload:{
+        name:'1',
+        pageNo:pageNo,
+        pageSize:pageSize
+      }
     })
   }
   renderColumns = () => {
@@ -33,6 +40,9 @@ export default class Article extends React.Component {
         title: '标签',
         dataIndex: 'tags',
         key: 'tags',
+        render: (val) => {
+          return <Tag>{val}</Tag>
+        }
       }, {
         title: '创建时间',
         dataIndex: 'createTime',
@@ -45,6 +55,13 @@ export default class Article extends React.Component {
         title: '状态',
         dataIndex: 'status',
         key: 'status',
+        render: (val) => {
+         if(val){
+           return '已发布'
+         }else{
+           return '未发布'
+         }
+        }
       },
       {
         title: '操作',
@@ -57,20 +74,41 @@ export default class Article extends React.Component {
             <Divider type="vertical" />
             <a href="javascript:;">编辑</a>
             <Divider type="vertical" />
-            <a href="javascript:;">删除</a>
+            <a href="javascript:;" onClick={()=>this.handleDelete(record._id)}>删除</a>
           </span>
         ),
       }]
     )
   }
   onPageNoChange = (page, pageSize) => {
-
+    this.setState({
+      pageNo:page
+    })
+    this.getList(page,pageSize)
   }
   onPageSizeChange = (current, size) => {
-
+    this.setState({
+      pageSize:size
+    })
+    this.getList(current,size)
   }
   onAdd = () => {
     this.props.history.push('/article/new/0')
+  }
+  handleDelete = (id) => {
+    this.Dispatch({
+      type:DELETE_ARTICLE,
+      payload:{
+        id:id
+      }
+    }).then(res=>{
+      message.destroy();
+      message.success('删除成功');
+      this.setState({
+        pageNo:1
+      })
+      this.getList(1,this.state.pageSize)
+    })
   }
   render() {
     const { list, total } = this.props.article;
@@ -78,7 +116,7 @@ export default class Article extends React.Component {
       <div>
         <div className={styles.search}>
           <Search
-            placeholder="请输入账号名称"
+            placeholder="请输入文章名称"
             onSearch={value => console.log(value)}
             style={{ width: 200 }}
           />

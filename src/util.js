@@ -27,3 +27,13 @@ export const pleacherCenterComponent = (TargetComponent) => {
     }
   }
 }
+
+export const promiseBindDispatch = (dispacth) => (params) => {
+  return new Promise((resolve,reject) => {
+    dispacth({
+      ...params,
+      resolve,
+      reject
+    })
+  })
+}

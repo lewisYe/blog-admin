@@ -4,12 +4,14 @@ import marked from 'marked'
 import styles from './index.less'
 import { connect } from 'react-redux';
 import { CREATE_ARTICLE } from '../../reducers/article'
+import { REQUEST_LIST } from '../../reducers/tags';
+import { promiseBindDispatch } from '../../util';
 
 const { TextArea } = Input;
 const Option = Select.Option;
 
 @Form.create()
-@connect(({ article }) => ({ article }))
+@connect(({ article,tag }) => ({ article,tag }))
 export default class NewEdit extends React.Component {
   constructor(props) {
     super(props)
@@ -17,18 +19,27 @@ export default class NewEdit extends React.Component {
       visible: false,
       content: null
     }
+    this.Dispatch = promiseBindDispatch(props.dispatch)
+  }
+  componentDidMount(){
+    this.props.dispatch({
+      type:REQUEST_LIST
+    })
   }
   handleSave = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        this.props.dispatch({
+        this.Dispatch({
           type: CREATE_ARTICLE,
           payload: {
             name: values.name,
             content: values.content,
             tags: values.tags
           }
+        }).then(res=>{
+          message.success('新增成功')
+          this.props.history.push('/article')
         })
       }
     });
@@ -63,6 +74,7 @@ export default class NewEdit extends React.Component {
         sm: { span: 8 },
       },
     };
+    const { tags } = this.props.tag;
     return (
       <div>
         <Form {...formItemLayout} onSubmit={this.handleSubmit}>
@@ -104,7 +116,11 @@ export default class NewEdit extends React.Component {
                 mode="multiple"
                 placeholder='请选择文章分类'
               >
-                <Option key="html">HTML</Option>
+              {
+                tags&&tags.map((tag,index)=>{
+                  return  <Option key={tag._id}>{tag.name}</Option>
+                })
+              }
               </Select>,
             )}
           </Form.Item>
