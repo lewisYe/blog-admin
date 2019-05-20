@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Input, Table, Divider, Tag, message } from 'antd';
 import { connect } from 'react-redux';
 import styles from './index.less'
-import { REQUEST_LIST, DELETE_ARTICLE } from '../../reducers/article'
+import { REQUEST_LIST, DELETE_ARTICLE, RELEASE_ARTICLE } from '../../reducers/article'
 import moment from 'moment'
 import { promiseBindDispatch } from '../../util'
 
@@ -18,15 +18,15 @@ export default class Article extends React.Component {
     this.Dispatch = promiseBindDispatch(props.dispatch)
   }
   componentDidMount() {
-    this.getList(1,15)
+    this.getList(1, 15)
   }
-  getList = (pageNo,pageSize) => {
+  getList = (pageNo, pageSize) => {
     this.props.dispatch({
       type: REQUEST_LIST,
-      payload:{
-        name:'1',
-        pageNo:pageNo,
-        pageSize:pageSize
+      payload: {
+        name: '1',
+        pageNo: pageNo,
+        pageSize: pageSize
       }
     })
   }
@@ -41,7 +41,15 @@ export default class Article extends React.Component {
         dataIndex: 'tags',
         key: 'tags',
         render: (val) => {
-          return <Tag>{val}</Tag>
+          return (
+            <div>
+              {
+                val && val.map((v, i) => {
+                  return <Tag key={i}>{v.name}</Tag>
+                })
+              }
+            </div>
+          )
         }
       }, {
         title: '创建时间',
@@ -56,11 +64,11 @@ export default class Article extends React.Component {
         dataIndex: 'status',
         key: 'status',
         render: (val) => {
-         if(val){
-           return '已发布'
-         }else{
-           return '未发布'
-         }
+          if (val) {
+            return '已发布'
+          } else {
+            return '未发布'
+          }
         }
       },
       {
@@ -68,13 +76,13 @@ export default class Article extends React.Component {
         key: 'action',
         render: (text, record) => (
           <span>
-            <a href="javascript:;">发布</a>
+            {
+              record.status ? <a href="javascript:;" onClick={() => this.handleRelease(record._id, 0)}>下线</a> : <a href="javascript:;" onClick={() => this.handleRelease(record._id, 1)}>发布</a>
+            }
             <Divider type="vertical" />
-            <a href="javascript:;">下线</a>
-            <Divider type="vertical" />
-            <a href="javascript:;">编辑</a>
-            <Divider type="vertical" />
-            <a href="javascript:;" onClick={()=>this.handleDelete(record._id)}>删除</a>
+            {!record.status ? <a href="javascript:;" onClick={() => { this.linkToDetial(record._id) }}>编辑</a> : null}
+            {!record.status ? <Divider type="vertical" /> : null}
+            <a href="javascript:;" onClick={() => this.handleDelete(record._id)}>删除</a>
           </span>
         ),
       }]
@@ -82,33 +90,52 @@ export default class Article extends React.Component {
   }
   onPageNoChange = (page, pageSize) => {
     this.setState({
-      pageNo:page
+      pageNo: page
     })
-    this.getList(page,pageSize)
+    this.getList(page, pageSize)
   }
   onPageSizeChange = (current, size) => {
     this.setState({
-      pageSize:size
+      pageSize: size
     })
-    this.getList(current,size)
+    this.getList(current, size)
   }
   onAdd = () => {
     this.props.history.push('/article/new/0')
   }
   handleDelete = (id) => {
     this.Dispatch({
-      type:DELETE_ARTICLE,
-      payload:{
-        id:id
+      type: DELETE_ARTICLE,
+      payload: {
+        id: id
       }
-    }).then(res=>{
+    }).then(res => {
       message.destroy();
       message.success('删除成功');
       this.setState({
-        pageNo:1
+        pageNo: 1
       })
-      this.getList(1,this.state.pageSize)
+      this.getList(1, this.state.pageSize)
     })
+  }
+  handleRelease = (id, status) => {
+    this.Dispatch({
+      type: RELEASE_ARTICLE,
+      payload: {
+        id: id,
+        status: status
+      }
+    }).then(res => {
+      message.destroy();
+      message.success(status ? '发布成功' : '下线成功');
+      this.setState({
+        pageNo: 1
+      })
+      this.getList(1, this.state.pageSize)
+    })
+  }
+  linkToDetial = (id) => {
+    this.props.history.push('/article/edit/' + id)
   }
   render() {
     const { list, total } = this.props.article;
